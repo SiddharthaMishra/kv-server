@@ -1,17 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {
-	r := mux.NewRouter()
+	a := initApp()
 
-	r.HandleFunc("/api", getValue).Methods("GET")
-	r.HandleFunc("/api", putValue).Methods("POST")
+	fmt.Println("Server started")
 
-	log.Fatal(http.ListenAndServe(":8000", r))
+	log.Fatal(http.ListenAndServe(":8000", a.router))
 }
