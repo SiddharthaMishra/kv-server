@@ -11,7 +11,10 @@ import (
 type App struct {
 
 	// storage.go::Storage manages the actual internal storage
-	Storage
+	*Storage
+
+	// ws-hub.go:: Hub manages the websocket connections
+	*Hub
 
 	// router to manage the routes
 	router *mux.Router
@@ -19,11 +22,18 @@ type App struct {
 
 // Initializes the app with the required data
 func initApp() *App {
+
+	h := newHub()
+
+	// Run the goroutine managing the websocket connections
+	go h.run()
+
 	a := &App{
-		Storage: Storage{hashmap: make(map[string]string)},
+		Hub:     h,
+		Storage: &Storage{hashmap: make(map[string]string)},
 	}
 
-	// creates the routes for the app
+	// Create the routes for the app
 	a.createRoutes()
 
 	return a
@@ -34,6 +44,7 @@ func (a *App) createRoutes() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api", a.postHandler).Methods("POST")
 	r.HandleFunc("/api/{key}", a.getHandler).Methods("GET")
+	r.HandleFunc("/api/watch", a.wsHandler)
 	a.router = r
 }
 
@@ -41,7 +52,7 @@ func (a *App) postHandler(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 
-	// fits the request body inside a pair, i.e, a (string, string) struct
+	// Fit the request body inside a pair, i.e, a (string, string) struct
 	var entry Pair
 	if err := decoder.Decode(&entry); err != nil {
 		// if the format is incorrect
@@ -49,11 +60,14 @@ func (a *App) postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// inserts the data
+	// Insert the data into the storage
 	a.Storage.putValue(&entry)
 
-	// send back the response
-	sendResponse(w, http.StatusCreated, map[string]string{"Key": entry.Key, "Value": entry.Value})
+	// Broadcast message to all listening websockets
+	a.Hub.broadcast <- &entry
+
+	// Send response back the response
+	sendResponse(w, http.StatusCreated, &map[string]string{"Key": entry.Key, "Value": entry.Value})
 }
 
 func (a *App) getHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +84,11 @@ func (a *App) getHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send back the response
-	sendResponse(w, http.StatusOK, map[string]string{"Key": key, "Value": value})
+	sendResponse(w, http.StatusOK, &map[string]string{"Key": key, "Value": value})
 
+}
+
+// Handle incoming websocket connection requests
+func (a *App) wsHandler(w http.ResponseWriter, r *http.Request) {
+	serveWs(a.Hub, w, r)
 }

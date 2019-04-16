@@ -10,39 +10,13 @@ import (
 
 var a *App
 
+// setup for the tests
 func TestMain(t *testing.T) {
 	a = initApp()
 	go http.ListenAndServe(":8000", a.router)
 }
 
-func TestPutValueInStorage(t *testing.T) {
-	a.Storage.putValue(&Pair{Key: "testKey", Value: "testValue"})
-
-	i, ok := a.Storage.hashmap["testKey"]
-
-	if !ok {
-		t.Errorf("Key 'testKey' does not exist in the database")
-	}
-
-	if i != "testValue" {
-		t.Errorf("Expected value 'testValue' got %v", a.Storage.hashmap["testKey"])
-	}
-}
-
-func TestGetValueFromStorage(t *testing.T) {
-	a.Storage.getValue("testKey")
-
-	i, ok := a.Storage.hashmap["testKey"]
-
-	if !ok {
-		t.Errorf("Key 'testKey' does not exist in the database")
-	}
-
-	if i != "testValue" {
-		t.Errorf("Expected value 'testValue' got %v", i)
-	}
-}
-
+// checks post requests storing values in the server
 func TestPostRequest(t *testing.T) {
 
 	payload := []byte(`{"Key": "TEST", "Value":"TESTING"}`)
@@ -65,6 +39,7 @@ func TestPostRequest(t *testing.T) {
 
 }
 
+// check if a wrong post request is giving the right error
 func TestWrongPostRequest(t *testing.T) {
 
 	payload := []byte(`{"Key": "TEST"`)
@@ -89,6 +64,7 @@ func TestWrongPostRequest(t *testing.T) {
 
 }
 
+// checks if get requests work properly
 func TestGetRequest(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/api/TEST", nil)
@@ -109,6 +85,7 @@ func TestGetRequest(t *testing.T) {
 
 }
 
+// check if get requests with incorrect key give the right error
 func TestWrongGetRequest(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/api/NotThere", nil)
@@ -129,9 +106,9 @@ func TestWrongGetRequest(t *testing.T) {
 	if i != "Key not found" {
 		t.Errorf("Unexpected error text %v", i)
 	}
-
 }
 
+// check if the response codes are equal
 func checkResponseCode(t *testing.T, expected, actual int) {
 	if expected != actual {
 		t.Errorf("Expected response code %d. Got %d\n", expected, actual)
