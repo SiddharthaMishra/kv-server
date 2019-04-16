@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -18,12 +17,6 @@ type App struct {
 	router *mux.Router
 }
 
-// Pair is one entry into the storage
-type Pair struct {
-	Key   string
-	Value string
-}
-
 // Initializes the app with the required data
 func initApp() *App {
 	a := &App{
@@ -36,12 +29,9 @@ func initApp() *App {
 	return a
 }
 
+// Create routes for the server
 func (a *App) createRoutes() {
 	r := mux.NewRouter()
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("index")
-		sendResponse(w, http.StatusCreated, map[string]string{"asd": "asdasd"})
-	})
 	r.HandleFunc("/api", a.postHandler).Methods("POST")
 	r.HandleFunc("/api/{key}", a.getHandler).Methods("GET")
 	a.router = r
@@ -51,7 +41,7 @@ func (a *App) postHandler(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 
-	// fits the request body inside a pair, i.e, a (string: string) struct
+	// fits the request body inside a pair, i.e, a (string, string) struct
 	var entry Pair
 	if err := decoder.Decode(&entry); err != nil {
 		// if the format is incorrect
@@ -64,10 +54,22 @@ func (a *App) postHandler(w http.ResponseWriter, r *http.Request) {
 
 	// send back the response
 	sendResponse(w, http.StatusCreated, map[string]string{"Key": entry.Key, "Value": entry.Value})
-
-	return
 }
 
 func (a *App) getHandler(w http.ResponseWriter, r *http.Request) {
-	return
+	// gets key form url
+	key := mux.Vars(r)["key"]
+
+	// get value from storage
+	value, ok := a.Storage.getValue(key)
+
+	// if value not present
+	if !ok {
+		sendError(w, http.StatusNotFound, "Key not found")
+		return
+	}
+
+	// send back the response
+	sendResponse(w, http.StatusOK, map[string]string{"Key": key, "Value": value})
+
 }

@@ -20,12 +20,26 @@ func TestPutValueInStorage(t *testing.T) {
 
 	i, ok := a.Storage.hashmap["testKey"]
 
-	if ok == false {
+	if !ok {
 		t.Errorf("Key 'testKey' does not exist in the database")
 	}
 
 	if i != "testValue" {
 		t.Errorf("Expected value 'testValue' got %v", a.Storage.hashmap["testKey"])
+	}
+}
+
+func TestGetValueFromStorage(t *testing.T) {
+	a.Storage.getValue("testKey")
+
+	i, ok := a.Storage.hashmap["testKey"]
+
+	if !ok {
+		t.Errorf("Key 'testKey' does not exist in the database")
+	}
+
+	if i != "testValue" {
+		t.Errorf("Expected value 'testValue' got %v", i)
 	}
 }
 
@@ -65,11 +79,54 @@ func TestWrongPostRequest(t *testing.T) {
 
 	i, ok := m["error"]
 
-	if ok == false {
-		t.Errorf("Key error not present")
+	if !ok {
+		t.Errorf("Key 'error' not present")
 	}
 
 	if i != "Invalid request payload" {
+		t.Errorf("Unexpected error text %v", i)
+	}
+
+}
+
+func TestGetRequest(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/api/TEST", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if m["Key"] != "TEST" {
+		t.Errorf("Expected response key to be 'TEST'. Got '%v'", m["Key"])
+	}
+
+	if m["Value"] != "TESTING" {
+		t.Errorf("Expected response value to be 'TESTING'. Got '%v'", m["Value"])
+	}
+
+}
+
+func TestWrongGetRequest(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/api/NotThere", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusNotFound, response.Code)
+
+	var m map[string]interface{}
+
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	i, ok := m["error"]
+
+	if !ok {
+		t.Errorf("Key 'error' not present")
+	}
+
+	if i != "Key not found" {
 		t.Errorf("Unexpected error text %v", i)
 	}
 

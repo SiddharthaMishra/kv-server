@@ -10,6 +10,16 @@ type Storage struct {
 
 func (s *Storage) putValue(entry *Pair) {
 	s.lock.Lock()
+	defer s.lock.Unlock()
+
 	s.hashmap[entry.Key] = entry.Value
-	s.lock.Unlock()
+}
+
+func (s *Storage) getValue(key string) (string, bool) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	i, ok := s.hashmap[key]
+
+	return i, ok
 }
