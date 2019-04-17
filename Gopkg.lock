@@ -7,9 +7,15 @@
   revision = "c5c6c98bc25355028a63748a498942a6398ccd22"
   version = "v1.7.1"
 
+[[projects]]
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "286dd1e2621a0999b5607055e3943b1d3f1a50147dbc6ae1d26b9f5f0961dd25"
+  inputs-digest = "147a652d3638a4c5eaf9e59c5a5ef8ffaf1d2060e87e1a9696f7a6717d6a63de"
   solver-name = "gps-cdcl"
   solver-version = 1
