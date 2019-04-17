@@ -1,10 +1,10 @@
-### Key-Value Storage Server
+# Key-Value Storage Server
 
 ## Installation
 
-* git clone 
+* git clone https://github.com/SiddharthaMishra/kv-server
 
-##1. from Docker(reccomended)
+##1. from Docker (recomended)
 * ```docker build -t kv-server``` .
 * ```docker run -d -p 8000:8000 kv-server```
 
@@ -18,7 +18,6 @@
 The server is run at localhost:8000 and it supports the following requests
 
 1. ```GET http://localhost:8000/{key}``` searches for a key in the database
-    * returns 
     ```json 
         {
             "Key": "key",
@@ -33,8 +32,7 @@ The server is run at localhost:8000 and it supports the following requests
         }
     ```
 
-3. ``` ws://localhost:8000/watch ``` to set up a websocket to recieve all key updates
-    * JSON messages received of the form
+3. ``` ws://localhost:8000/watch ``` to set up a websocket to recieve all key updated as JSON messages received in the form 
     ```json 
         {
             "Key": "key",
