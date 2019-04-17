@@ -42,9 +42,9 @@ func initApp() *App {
 // Create routes for the server
 func (a *App) createRoutes() {
 	r := mux.NewRouter()
+	r.HandleFunc("/watch", a.wsHandler)
 	r.HandleFunc("/api", a.postHandler).Methods("POST")
 	r.HandleFunc("/api/{key}", a.getHandler).Methods("GET")
-	r.HandleFunc("/api/watch", a.wsHandler)
 	a.router = r
 }
 

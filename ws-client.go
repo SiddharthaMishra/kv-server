@@ -14,7 +14,7 @@ const (
 	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
+	pongWait = 10 * time.Second
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
@@ -68,7 +68,7 @@ func (c *Client) writePump() {
 			message, _ := json.Marshal(entry)
 			w.Write(message)
 
-			// Add queued chat messages to the current websocket message.
+			// Add queued messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				message, _ = json.Marshal(entry)

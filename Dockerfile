@@ -13,7 +13,7 @@ RUN dep ensure -vendor-only
 
 ADD *.go ./
 
-RUN go build -o kvserver .
+RUN go test -v && go build -o kvserver .
 
 CMD [ "./kvserver" ]
 
