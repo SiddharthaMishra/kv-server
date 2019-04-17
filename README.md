@@ -4,11 +4,11 @@
 
 * git clone https://github.com/SiddharthaMishra/kv-server
 
-##1. from Docker (recomended)
+## 1. from Docker (recomended)
 * ```docker build -t kv-server``` .
 * ```docker run -d -p 8000:8000 kv-server```
 
-##2. from dep
+## 2. from dep
 * ```dep ensure```
 * ``` go build -o kv-server ```
 * ```./kv-server```
